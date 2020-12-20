@@ -1,0 +1,175 @@
+using System;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+
+namespace easyPos
+{
+    class DBaccess
+    {
+
+        public static string userName;
+        public static string pirmesion;
+        
+       
+        //Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename="C:\Users\Mostafa Ragab\Source\Repos\easyPos\easyPos\POSDB.mdf";Integrated Security=True;Connect Timeout=30;User Instance=True
+        private static SqlConnection opjconnection;
+        private static SqlDataAdapter opjdateAdapter; //DESKTOP-2T0UR0A\SQLEXPRESS    DESKTOP-58HMPHG   Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Database.mdf;Integrated Security=True
+        public static string ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+
+        public static void openConnection()
+        {
+            try
+            {
+                if (opjconnection == null)
+                {
+                    opjconnection = new SqlConnection(ConnectionString);
+                    opjconnection.Open();
+                }
+                else
+                {
+                    if (opjconnection.State != ConnectionState.Open)
+                    {
+                        opjconnection = new SqlConnection(ConnectionString);
+                        opjconnection.Open();
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("يجب تسطيب البرنامج الخاص بقواعد البيانات اولا او تواصل بالدعم الفنى على الرقم 01017427383");
+            }
+        }
+        private static void closeConnection()
+        {
+            try
+            {
+                if (!(opjconnection == null))
+                {
+                    if (opjconnection.State == ConnectionState.Open)
+                    {
+                        opjconnection.Close();
+                        opjconnection.Dispose();
+
+
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+               // MessageBox.Show(ex.Message);
+            }
+        }
+
+
+        public static DataTable fillDataTable(string query, DataTable Table)
+        {
+            try
+            {
+                openConnection();
+
+                opjdateAdapter = new SqlDataAdapter(query, opjconnection);
+
+                opjdateAdapter.Fill(Table);
+                opjdateAdapter.Dispose();
+                closeConnection();
+
+                return Table;
+
+
+            }
+            catch (Exception ex)
+            {
+               // MessageBox.Show(ex.Message);
+                return null;
+            }
+        }
+        public static SqlDataReader xx(string qry)
+        {
+            string conn = DBaccess.ConnectionString;
+            SqlConnection connect = new SqlConnection(conn);
+            connect.Open();
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = connect;
+            cmd.CommandText = qry;
+            cmd.ExecuteNonQuery();
+
+            SqlDataReader num = cmd.ExecuteReader();
+            //  closeConnection();
+            return num;
+
+
+
+        }
+        public static bool executeinsertquery(String query)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    {
+                       
+                        connection.Open();
+                        cmd.ExecuteNonQuery();
+                        connection.Close();
+
+                        return true;
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+               // MessageBox.Show(ex.Message);
+            
+
+                return false;
+            }
+        }
+        public static void executeupdatequery(string query)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(ConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(query, connection))
+                    {
+                        connection.Open();
+                        cmd.ExecuteNonQuery();
+                        connection.Close();
+
+
+                    }
+
+                }
+
+            }
+           
+               
+            catch (Exception ex)
+            {
+              //  MessageBox.Show(ex.Message);
+            }
+        }
+        public static int test(string sql)
+        {
+            string conn = ConnectionString;
+            SqlConnection connect = new SqlConnection(conn);
+            connect.Open();
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = connect;
+            cmd.CommandText = sql;
+
+
+
+
+            int id = (int)cmd.ExecuteScalar();
+
+            return id;
+        }
+    }
+}
